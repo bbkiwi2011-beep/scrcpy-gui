@@ -5,9 +5,12 @@ export interface RendererOption {
     label: string;
 }
 
-export function buildRendererOptions(renderDriverSupport: RenderDriverSupport): RendererOption[] {
+export function buildRendererOptions(
+    renderDriverSupport: RenderDriverSupport,
+    autoLabel: string = 'Auto'
+): RendererOption[] {
     return [
-        { value: 'auto', label: 'Auto' },
+        { value: 'auto', label: autoLabel },
         ...renderDriverSupport.supportedDrivers.map((driver) => ({
             value: driver.id,
             label: driver.label

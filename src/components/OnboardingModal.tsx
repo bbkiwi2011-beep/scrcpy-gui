@@ -1,4 +1,5 @@
 import { CheckCircle2, Download, Cpu, ArrowRight, X, ExternalLink, HelpCircle } from 'lucide-react';
+import { useI18n } from '../i18n';
 
 interface OnboardingModalProps {
     isOpen: boolean;
@@ -19,6 +20,7 @@ export default function OnboardingModal({
     downloadProgress,
     onComplete
 }: OnboardingModalProps) {
+    const { t } = useI18n();
     if (!isOpen) return null;
 
     const isReady = binaryStatus.found;
@@ -45,13 +47,13 @@ export default function OnboardingModal({
                             <h2 className="text-3xl font-black italic tracking-tighter uppercase">
                                 scrcpy <span className="text-primary not-italic">GUI</span>
                             </h2>
-                            <p className="text-[10px] uppercase font-black tracking-widest text-primary mt-2">Core Initialization</p>
+                            <p className="text-[10px] uppercase font-black tracking-widest text-primary mt-2">{t('onboarding.coreInitialization')}</p>
                         </div>
 
                         <div className="relative z-10 space-y-4">
                             <div className="p-4 rounded-2xl bg-black/40 border border-white/5 backdrop-blur-sm">
                                 <p className="text-[10px] text-zinc-400 leading-relaxed font-medium">
-                                    "Scrcpy and ADB binaries are required to communicate with your device. Let's get these installed."
+                                    {t('onboarding.introQuote')}
                                 </p>
                             </div>
                         </div>
@@ -60,8 +62,8 @@ export default function OnboardingModal({
                     {/* Right Side: Setup */}
                     <div className="flex-1 p-8 sm:p-12">
                         <div className="mb-10">
-                            <h3 className="text-2xl font-black tracking-tight text-white mb-2 uppercase italic">Setup Core Components</h3>
-                            <p className="text-zinc-500 text-sm font-medium">Automatic or manual installation required.</p>
+                            <h3 className="text-2xl font-black tracking-tight text-white mb-2 uppercase italic">{t('onboarding.setupCoreComponents')}</h3>
+                            <p className="text-zinc-500 text-sm font-medium">{t('onboarding.setupCoreSubtitle')}</p>
                         </div>
 
                         <div className="space-y-8">
@@ -77,10 +79,10 @@ export default function OnboardingModal({
 
                                 <div className="flex-1 pt-1">
                                     <h4 className={`text-sm font-black uppercase tracking-widest ${isReady ? 'text-white' : 'text-zinc-400'}`}>
-                                        Binaries & Drivers
+                                        {t('onboarding.binariesAndDrivers')}
                                     </h4>
                                     <p className="text-xs text-zinc-500 leading-relaxed font-medium mb-4">
-                                        We need to download the Scrcpy engine to mirror your screen.
+                                        {t('onboarding.binariesDescription')}
                                     </p>
 
                                     {!isReady && (
@@ -91,9 +93,9 @@ export default function OnboardingModal({
                                                 className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-black rounded-xl text-[10px] font-black uppercase tracking-widest transition-all hover:bg-primary/90 active:scale-95 disabled:opacity-50 disabled:pointer-events-none"
                                             >
                                                 {isDownloading ? (
-                                                    <><RefreshCcw size={12} className="animate-spin" /> Downloading... {downloadProgress}%</>
+                                                    <><RefreshCcw size={12} className="animate-spin" /> {t('onboarding.downloadingProgress', { progress: downloadProgress })}</>
                                                 ) : (
-                                                    <><Download size={14} /> Download Core Binaries</>
+                                                    <><Download size={14} /> {t('onboarding.downloadCoreBinaries')}</>
                                                 )}
                                             </button>
 
@@ -108,10 +110,10 @@ export default function OnboardingModal({
                                             <div className="pt-6 border-t border-zinc-900">
                                                 <div className="flex items-center gap-2 text-zinc-500 mb-2">
                                                     <HelpCircle size={14} />
-                                                    <span className="text-[10px] font-black uppercase tracking-widest">Manual Setup Fallback</span>
+                                                    <span className="text-[10px] font-black uppercase tracking-widest">{t('onboarding.manualSetupFallback')}</span>
                                                 </div>
                                                 <p className="text-[10px] text-zinc-600 mb-3 leading-loose">
-                                                    If auto-download fails, try running as <span className="text-zinc-400 font-bold">Administrator</span>. Alternatively, download manually and set the path via the folder icon in the top-right corner.
+                                                    {t('onboarding.manualSetupBefore')} <span className="text-zinc-400 font-bold">{t('onboarding.manualSetupAdministrator')}</span>{t('onboarding.manualSetupAfter')}
                                                 </p>
                                                 <a
                                                     href="https://github.com/Genymobile/scrcpy/releases/latest"
@@ -119,7 +121,7 @@ export default function OnboardingModal({
                                                     rel="noopener noreferrer"
                                                     className="inline-flex items-center gap-1.5 text-[9px] font-black uppercase text-primary hover:underline tracking-widest"
                                                 >
-                                                    GitHub Releases <ExternalLink size={10} />
+                                                    {t('onboarding.githubReleases')} <ExternalLink size={10} />
                                                 </a>
                                             </div>
                                         </div>
@@ -128,7 +130,7 @@ export default function OnboardingModal({
                                     {isReady && (
                                         <div className="flex items-center gap-2 text-emerald-500 animate-in fade-in slide-in-from-left-2 duration-1000">
                                             <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
-                                            <span className="text-[10px] font-black uppercase tracking-widest text-emerald-400">Success! Binaries Active</span>
+                                            <span className="text-[10px] font-black uppercase tracking-widest text-emerald-400">{t('onboarding.successBinariesActive')}</span>
                                         </div>
                                     )}
                                 </div>
@@ -144,7 +146,7 @@ export default function OnboardingModal({
                                     : 'bg-zinc-900 text-zinc-600 border border-zinc-800'
                                     }`}
                             >
-                                Continue to App
+                                {t('onboarding.continueToApp')}
                                 <ArrowRight size={16} className={`transition-transform duration-300 ${isReady ? 'group-hover:translate-x-1' : ''}`} />
                             </button>
                         </div>

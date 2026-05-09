@@ -13,8 +13,10 @@ import OnboardingModal from "./components/OnboardingModal";
 import ThemedModal from "./components/ThemedModal";
 import { useScrcpy } from "./hooks/useScrcpy";
 import { getVersion } from '@tauri-apps/api/app';
+import { useI18n } from "./i18n";
 
 function App() {
+  const { t } = useI18n();
   const {
     devices,
     logs,
@@ -100,7 +102,7 @@ function App() {
     // Global Drag and Drop Listener (re-bind only if activeDevice changes)
     const unlisten = getCurrentWindow().listen<{ paths: string[] }>("tauri://drag-drop", (event) => {
       if (!activeDevice) {
-        setLogs(prev => [...prev.slice(-100), "[WARN] No device selected for drag-and-drop operation."]);
+        setLogs(prev => [...prev.slice(-100), t('logs.noDeviceForDragDrop')]);
         return;
       }
 
@@ -123,7 +125,7 @@ function App() {
 
   const handleStart = async () => {
     if (!activeDevice) {
-      showAlert("No Device Selected", "Please select a device from the sidebar to continue. Hint: If you just connected your phone, click 'Refresh' in the sidebar to update the list.", "warning");
+      showAlert(t('alerts.noDeviceSelectedTitle'), t('alerts.noDeviceSelectedMessage'), "warning");
       return;
     }
     await runScrcpy(config);
@@ -197,7 +199,7 @@ function App() {
       });
       if (selected && typeof selected === 'string') {
         setConfig(prev => ({ ...prev, scrcpyPath: selected }));
-        setLogs(prev => [...prev.slice(-100), `[SYSTEM] Custom scrcpy path set to: ${selected}`]);
+        setLogs(prev => [...prev.slice(-100), t('logs.customScrcpyPathSet', { path: selected })]);
         // Trigger a check with the new path
         setTimeout(() => checkScrcpy(selected), 100);
       }
@@ -208,7 +210,7 @@ function App() {
 
   const handleResetPath = async () => {
     setConfig(prev => ({ ...prev, scrcpyPath: undefined }));
-    setLogs(prev => [...prev.slice(-100), `[SYSTEM] Custom scrcpy path cleared. Using system default.`]);
+    setLogs(prev => [...prev.slice(-100), t('logs.customScrcpyPathCleared')]);
     // Trigger a check with no custom path
     setTimeout(() => checkScrcpy(undefined), 100);
   };

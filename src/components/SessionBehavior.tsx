@@ -2,6 +2,7 @@ import { open } from '@tauri-apps/plugin-dialog';
 import { ScrcpyConfig } from '../hooks/useScrcpy';
 import Tooltip from './Tooltip';
 import { Coffee, MonitorOff, Volume2, Layers, Maximize, Square, Circle, Folder, Settings2 } from 'lucide-react';
+import { useI18n } from '../i18n';
 
 interface SessionBehaviorProps {
     config: ScrcpyConfig;
@@ -9,6 +10,8 @@ interface SessionBehaviorProps {
 }
 
 export default function SessionBehavior({ config, setConfig }: SessionBehaviorProps) {
+    const { t } = useI18n();
+
     const handleChange = (field: keyof ScrcpyConfig, value: any) => {
         const newConfig = { ...config, [field]: value };
         setConfig(newConfig);
@@ -22,7 +25,7 @@ export default function SessionBehavior({ config, setConfig }: SessionBehaviorPr
             const selected = await open({
                 directory: true,
                 multiple: false,
-                title: 'Select Recording Folder'
+                title: t('sessionBehavior.selectRecordingFolderTitle')
             });
             if (selected) {
                 handleChange('recordPath', selected);
@@ -61,7 +64,7 @@ export default function SessionBehavior({ config, setConfig }: SessionBehaviorPr
             <div className="glass p-3.5 rounded-2xl space-y-2 border border-zinc-800 bg-zinc-900/40 backdrop-blur-md">
                 <div className="flex items-center gap-2 border-b border-zinc-800/50 pb-1.5 mb-1">
                     <Settings2 size={12} className="text-zinc-500" />
-                    <h2 className="text-[10px] font-black uppercase text-zinc-400 tracking-widest">Session Behavior</h2>
+                    <h2 className="text-[10px] font-black uppercase text-zinc-400 tracking-widest">{t('sessionBehavior.title')}</h2>
                 </div>
 
                 <div className="flex flex-col gap-1">
@@ -69,50 +72,50 @@ export default function SessionBehavior({ config, setConfig }: SessionBehaviorPr
                         checked={config.stayAwake || false}
                         onChange={(v) => handleChange('stayAwake', v)}
                         icon={Coffee}
-                        label="Stay Awake"
-                        tooltip="Keep the device awake while mirroring is active."
+                        label={t('sessionBehavior.stayAwake')}
+                        tooltip={t('sessionBehavior.stayAwakeTooltip')}
                     />
                     <Toggle
                         checked={config.turnOff || false}
                         onChange={(v) => handleChange('turnOff', v)}
                         icon={MonitorOff}
-                        label="Screen Off"
-                        tooltip="Turn off the device screen while mirroring to save battery."
+                        label={t('sessionBehavior.screenOff')}
+                        tooltip={t('sessionBehavior.screenOffTooltip')}
                     />
                     <Toggle
                         checked={config.audioEnabled || false}
                         onChange={(v) => handleChange('audioEnabled', v)}
                         icon={Volume2}
-                        label="Forward Audio"
-                        tooltip="Forward device audio to your computer."
+                        label={t('sessionBehavior.forwardAudio')}
+                        tooltip={t('sessionBehavior.forwardAudioTooltip')}
                     />
                     <Toggle
                         checked={config.alwaysOnTop || false}
                         onChange={(v) => handleChange('alwaysOnTop', v)}
                         icon={Layers}
-                        label="Always On Top"
-                        tooltip="Keep the scrcpy window on top of other windows."
+                        label={t('sessionBehavior.alwaysOnTop')}
+                        tooltip={t('sessionBehavior.alwaysOnTopTooltip')}
                     />
                     <Toggle
                         checked={config.fullscreen || false}
                         onChange={(v) => handleChange('fullscreen', v)}
                         icon={Maximize}
-                        label="Full Screen"
-                        tooltip="Launch scrcpy in full screen mode."
+                        label={t('sessionBehavior.fullScreen')}
+                        tooltip={t('sessionBehavior.fullScreenTooltip')}
                     />
                     <Toggle
                         checked={config.borderless || false}
                         onChange={(v) => handleChange('borderless', v)}
                         icon={Square}
-                        label="Borderless"
-                        tooltip="Launch scrcpy without window borders."
+                        label={t('sessionBehavior.borderless')}
+                        tooltip={t('sessionBehavior.borderlessTooltip')}
                     />
                     <Toggle
                         checked={config.record || false}
                         onChange={(v) => handleChange('record', v)}
                         icon={Circle}
-                        label="Record Feed"
-                        tooltip="Record the screen/camera feed to a file."
+                        label={t('sessionBehavior.recordFeed')}
+                        tooltip={t('sessionBehavior.recordFeedTooltip')}
                         danger={true}
                     />
                 </div>
@@ -121,18 +124,18 @@ export default function SessionBehavior({ config, setConfig }: SessionBehaviorPr
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-1.5">
                             <Folder size={12} className="text-zinc-500" />
-                            <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-tight">Record Path</span>
+                            <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-tight">{t('sessionBehavior.recordPath')}</span>
                         </div>
                         <button
                             onClick={handlePickFolder}
                             className="text-[8px] font-black uppercase text-primary hover:text-white transition-colors"
                         >
-                            Change
+                            {t('sessionBehavior.change')}
                         </button>
                     </div>
                     <div className="bg-black/40 border border-zinc-800/50 rounded-lg px-2.5 py-1.5">
                         <p className="text-[9px] text-zinc-500 font-mono truncate leading-none">
-                            {config.recordPath || 'Default (Videos Folder)'}
+                            {config.recordPath || t('sessionBehavior.defaultVideosFolder')}
                         </p>
                     </div>
                 </div>

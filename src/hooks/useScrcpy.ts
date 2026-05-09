@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
+import { useI18n } from '../i18n';
 
 export interface RenderDriverOption {
     id: string;
@@ -45,13 +46,14 @@ export interface ScrcpyConfig {
 }
 
 export function useScrcpy() {
+    const { t } = useI18n();
     const [devices, setDevices] = useState<string[]>([]);
     const [logs, setLogs] = useState<string[]>([]);
     const [activeDevice, setActiveDevice] = useState<string>("");
     const [status, setStatus] = useState<string>("");
     const [downloadProgress, setDownloadProgress] = useState<number>(0);
     const [isDownloading, setIsDownloading] = useState(false);
-    const [scrcpyStatus, setScrcpyStatus] = useState<{ found: boolean, message: string }>({ found: false, message: "Checking..." });
+    const [scrcpyStatus, setScrcpyStatus] = useState<{ found: boolean, message: string }>({ found: false, message: t('common.loading') });
     const [isAutoConnect, setIsAutoConnect] = useState<boolean>(true);
     const [isInitialized, setIsInitialized] = useState(false);
     const [runningDevices, setRunningDevices] = useState<string[]>([]);
@@ -187,7 +189,7 @@ export function useScrcpy() {
                 setDownloadProgress(data.percent);
             } else if (data.type === 'download-complete') {
                 setIsDownloading(false);
-                setStatus("Download Complete");
+                setStatus(t('logs.downloadComplete'));
                 refreshDevices(data.message);
                 checkScrcpy(); // Re-check binary status
             }
@@ -197,7 +199,7 @@ export function useScrcpy() {
             unlistenLog.then(f => f());
             unlistenStatus.then(f => f());
         };
-    }, []);
+    }, [t]);
 
     const [historyDevices, setHistoryDevices] = useState<string[]>([]);
 
@@ -242,29 +244,29 @@ export function useScrcpy() {
                 const removed = prevDevices.filter(d => !newDevices.includes(d));
 
                 added.forEach(device => {
-                    setLogs(prev => [...prev.slice(-100), `[SYSTEM] New device discovered: ${device}`]);
+                    setLogs(prev => [...prev.slice(-100), t('logs.newDeviceDiscovered', { device })]);
                 });
 
                 removed.forEach(device => {
-                    setLogs(prev => [...prev.slice(-100), `[SYSTEM] Device disconnected: ${device}`]);
+                    setLogs(prev => [...prev.slice(-100), t('logs.deviceDisconnected', { device })]);
                 });
 
                 setDevices(newDevices);
                 prevDevicesRef.current = newDevices;
 
                 if (!silent && added.length === 0 && removed.length === 0) {
-                    setLogs(prev => [...prev.slice(-100), `[SYSTEM] Discovery active: ${newDevices.length} device(s) found.`]);
+                    setLogs(prev => [...prev.slice(-100), t('logs.discoveryActive', { count: newDevices.length })]);
                 }
 
                 if (newDevices.length > 0 && !activeDevice) {
                     setActiveDevice(newDevices[0]);
                 }
             } else {
-                setLogs(prev => [...prev.slice(-100), `[SYSTEM] Discovery error: ${res.error}`]);
+                setLogs(prev => [...prev.slice(-100), t('logs.discoveryError', { error: res.error })]);
             }
         } catch (e) {
             console.error(e);
-            setLogs(prev => [...prev.slice(-100), `[SYSTEM] Error refreshing devices: ${e}`]);
+            setLogs(prev => [...prev.slice(-100), t('logs.errorRefreshingDevices', { error: String(e) })]);
         } finally {
             setIsRefreshing(false);
         }
@@ -272,10 +274,10 @@ export function useScrcpy() {
 
     const runScrcpy = async (config: ScrcpyConfig) => {
         try {
-            setLogs(prev => [...prev.slice(-100), `[SYSTEM] Initializing scrcpy session for ${config.device}...`]);
+            setLogs(prev => [...prev.slice(-100), t('logs.initializingScrcpy', { device: config.device })]);
             await invoke('run_scrcpy', { config });
         } catch (e: any) {
-            setLogs(prev => [...prev.slice(-100), `[ERROR] Failed to start scrcpy: ${e}`]);
+            setLogs(prev => [...prev.slice(-100), t('logs.failedToStartScrcpy', { error: String(e) })]);
         }
     };
 
@@ -293,7 +295,7 @@ export function useScrcpy() {
             await invoke('download_scrcpy');
         } catch (e: any) {
             setIsDownloading(false);
-            setLogs(prev => [...prev, `Download Error: ${e}`]);
+            setLogs(prev => [...prev, t('logs.downloadError', { error: String(e) })]);
         }
     };
 
@@ -335,7 +337,7 @@ export function useScrcpy() {
 
             return res.found;
         } catch (e: any) {
-            setScrcpyStatus({ found: false, message: `Error: ${e}` });
+            setScrcpyStatus({ found: false, message: t('logs.genericError', { error: String(e) }) });
             return false;
         }
     };
@@ -344,20 +346,20 @@ export function useScrcpy() {
         try {
             const res: any = await invoke('adb_pair', { ip, code, customPath: customPath || config.scrcpyPath });
             if (res.success) {
-                setLogs(prev => [...prev.slice(-100), `[SYSTEM] Successfully paired with ${ip}`]);
+                setLogs(prev => [...prev.slice(-100), t('logs.successfullyPaired', { ip })]);
                 await refreshDevices(customPath, true);
             } else {
                 setLogs(prev => {
-                    const msgs = [`[SYSTEM] Pairing failed: ${res.message}`];
+                    const msgs = [t('logs.pairingFailed', { message: String(res.message) })];
                     if (typeof res.message === 'string' && res.message.includes('protocol fault')) {
-                        msgs.push(`[TIP] Protocol fault usually means the ADB server is stuck. Try "Kill ADB" in the sidebar.`);
+                        msgs.push(t('logs.pairingProtocolFault'));
                     }
                     return [...prev.slice(-100), ...msgs];
                 });
             }
             return res;
         } catch (e: any) {
-            setLogs(prev => [...prev.slice(-100), `[ERROR] Pairing error: ${e}`]);
+            setLogs(prev => [...prev.slice(-100), t('logs.pairingError', { error: String(e) })]);
             return { success: false, message: e };
         }
     };
@@ -370,7 +372,7 @@ export function useScrcpy() {
 
             // Retry Logic: If failed, try to disconnect first then reconnect
             if (!res.success && typeof res.message === 'string' && (res.message.includes('failed to connect') || res.message.includes('cannot connect'))) {
-                setLogs(prev => [...prev.slice(-100), `[SYSTEM] Connection failed, retrying with cleanup...`]);
+                setLogs(prev => [...prev.slice(-100), t('logs.connectionFailedRetrying')]);
                 // Force disconnect to clear ghost state
                 await invoke('run_terminal_command', { cmd: `adb disconnect ${ip}`, customPath: customPath || config.scrcpyPath });
                 // Small delay
@@ -380,7 +382,7 @@ export function useScrcpy() {
             }
 
             if (res.success) {
-                setLogs(prev => [...prev.slice(-100), `[SYSTEM] CONNECTED TO ${ip} SUCCESSFULLY.`]);
+                setLogs(prev => [...prev.slice(-100), t('logs.connectedSuccessfully', { ip })]);
                 addToHistory(ip);
 
                 // Allow ADB to settle and state to update
@@ -390,17 +392,17 @@ export function useScrcpy() {
                 await refreshDevices(customPath || config.scrcpyPath, true);
             } else {
                 setLogs(prev => {
-                    const msgs = [`[SYSTEM] Connection failed: ${res.message}`];
+                    const msgs = [t('logs.connectionFailed', { message: String(res.message) })];
                     // Smart tip for stale ports
                     if (typeof res.message === 'string' && (res.message.includes('failed to connect') || res.message.includes('cannot connect'))) {
-                        msgs.push(`[TIP] Port might be stale. Try "Kill ADB" to refresh discovery.`);
+                        msgs.push(t('logs.connectionStaleTip'));
                     }
                     return [...prev.slice(-100), ...msgs];
                 });
             }
             return res;
         } catch (e: any) {
-            setLogs(prev => [...prev.slice(-100), `[ERROR] Connection error: ${e}`]);
+            setLogs(prev => [...prev.slice(-100), t('logs.connectionError', { error: String(e) })]);
             return { success: false, message: e };
         } finally {
             setIsRefreshing(false);
@@ -409,7 +411,7 @@ export function useScrcpy() {
 
     const listScrcpyOptions = async (device: string, arg: string, customPath?: string) => {
         try {
-            setLogs(prev => [...prev.slice(-100), `Running scrcpy ${arg}...`]);
+            setLogs(prev => [...prev.slice(-100), t('logs.runningScrcpyArg', { arg })]);
             const res: any = await invoke('list_scrcpy_options', { device, arg, customPath: customPath || config.scrcpyPath });
             if (res.output) {
                 const lines = res.output.split('\n');
@@ -445,37 +447,37 @@ export function useScrcpy() {
                     if (cameras.length > 0) {
                         setDetectedCameras(cameras);
                     } else {
-                        setLogs(prev => [...prev, "[SYSTEM] No cameras parsed from output. Please check the console above."]);
+                        setLogs(prev => [...prev, t('logs.noCamerasParsed')]);
                     }
                 }
             }
             return res;
         } catch (e: any) {
-            setLogs(prev => [...prev.slice(-100), `Error: ${e}`]);
+            setLogs(prev => [...prev.slice(-100), t('logs.genericError', { error: String(e) })]);
             return { success: false, message: e };
         }
     };
 
     const pushFile = async (device: string, filePath: string, customPath?: string) => {
         try {
-            setLogs(prev => [...prev.slice(-100), `[SYSTEM] Pushing file to ${device}: ${filePath}...`]);
+            setLogs(prev => [...prev.slice(-100), t('logs.pushingFile', { device, filePath })]);
             const res: any = await invoke('push_file', { device, filePath, customPath: customPath || config.scrcpyPath });
-            setLogs(prev => [...prev.slice(-100), `[ADB] ${res.message}`]);
+            setLogs(prev => [...prev.slice(-100), t('logs.adbPrefix', { message: String(res.message) })]);
             return res;
         } catch (e: any) {
-            setLogs(prev => [...prev.slice(-100), `Error: ${e}`]);
+            setLogs(prev => [...prev.slice(-100), t('logs.genericError', { error: String(e) })]);
             return { success: false, message: e };
         }
     };
 
     const installApk = async (device: string, filePath: string, customPath?: string) => {
         try {
-            setLogs(prev => [...prev.slice(-100), `[SYSTEM] Installing APK on ${device}: ${filePath}...`]);
+            setLogs(prev => [...prev.slice(-100), t('logs.installingApk', { device, filePath })]);
             const res: any = await invoke('install_apk', { device, filePath, customPath: customPath || config.scrcpyPath });
-            setLogs(prev => [...prev.slice(-100), `[ADB] ${res.message}`]);
+            setLogs(prev => [...prev.slice(-100), t('logs.adbPrefix', { message: String(res.message) })]);
             return res;
         } catch (e: any) {
-            setLogs(prev => [...prev.slice(-100), `Error: ${e}`]);
+            setLogs(prev => [...prev.slice(-100), t('logs.genericError', { error: String(e) })]);
             return { success: false, message: e };
         }
     };
@@ -503,7 +505,7 @@ export function useScrcpy() {
             }
             return res;
         } catch (e: any) {
-            setLogs(prev => [...prev.slice(-100), `[ERROR] Command failed: ${e}`]);
+            setLogs(prev => [...prev.slice(-100), t('logs.commandFailed', { error: String(e) })]);
             return { success: false, message: e };
         }
     };

@@ -3,6 +3,7 @@ import { Play, Square, Monitor, Camera, LayoutGrid, ChevronDown, Lock, Unlock, S
 import { RenderDriverSupport, ScrcpyConfig } from '../../hooks/useScrcpy';
 import Tooltip from '../Tooltip';
 import { buildRendererOptions, mapRendererSelection } from './rendererOptions';
+import { useI18n } from '../../i18n';
 
 interface ControlPanelProps {
     config: ScrcpyConfig;
@@ -15,7 +16,7 @@ interface ControlPanelProps {
     renderDriverSupport?: RenderDriverSupport;
 }
 
-const BitrateControl = ({ value, onChange }: { value: number, onChange: (val: number) => void }) => {
+const BitrateControl = ({ label, value, onChange }: { label: string, value: number, onChange: (val: number) => void }) => {
     const [localValue, setLocalValue] = useState(value);
 
     // Sync from parent if parent changes externally (e.g. preset load)
@@ -26,7 +27,7 @@ const BitrateControl = ({ value, onChange }: { value: number, onChange: (val: nu
     return (
         <div className="space-y-1">
             <div className="flex justify-between items-center h-4">
-                <label className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">Bitrate</label>
+                <label className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">{label}</label>
                 <span className="text-[10px] font-black text-primary tabular-nums">{localValue}M</span>
             </div>
             <input
@@ -76,11 +77,13 @@ export default function ControlPanel({
     detectedCameras = [],
     renderDriverSupport = { hostOs: 'unknown', supportsRenderDriver: false, supportedDrivers: [] }
 }: ControlPanelProps) {
+    const { t } = useI18n();
+
     const handleChange = (field: keyof ScrcpyConfig, value: any) => {
         setConfig({ ...config, [field]: value });
     };
 
-    const rendererOptions = buildRendererOptions(renderDriverSupport);
+    const rendererOptions = buildRendererOptions(renderDriverSupport, t('controlPanel.rendererAuto'));
 
     const CustomSelect = ({ value, onChange, options, label, className = "" }: { value: any, onChange: (val: any) => void, options: { value: any, label: string }[], label?: string, className?: string }) => {
         const [isOpen, setIsOpen] = useState(false);
@@ -96,7 +99,7 @@ export default function ControlPanel({
             return () => document.removeEventListener('mousedown', handleClickOutside);
         }, [isOpen]);
 
-        const selectedOption = options.find(opt => opt.value === value) || { value, label: "Custom" };
+        const selectedOption = options.find(opt => opt.value === value) || { value, label: t('controlPanel.custom') };
 
         return (
             <div className={`relative ${className}`} ref={containerRef}>
@@ -135,11 +138,11 @@ export default function ControlPanel({
         <div className={`grid ${showResolution ? 'grid-cols-3' : 'grid-cols-2'} gap-2`}>
             {showResolution && (
                 <CustomSelect
-                    label="Resolution"
+                    label={t('controlPanel.resolution')}
                     value={config.res || "0"}
                     onChange={(val) => handleChange('res', val)}
                     options={[
-                        { value: "0", label: "Original" },
+                        { value: "0", label: t('controlPanel.resolutionOriginal') },
                         { value: "3840", label: "4K" },
                         { value: "2560", label: "2K" },
                         { value: "1920", label: "1080p" },
@@ -151,7 +154,7 @@ export default function ControlPanel({
                 />
             )}
             <CustomSelect
-                label="FPS"
+                label={t('controlPanel.fps')}
                 value={config.fps || 60}
                 onChange={(val) => handleChange('fps', parseInt(val))}
                 options={[
@@ -162,7 +165,7 @@ export default function ControlPanel({
                 ]}
             />
             <CustomSelect
-                label="Rotation"
+                label={t('controlPanel.rotation')}
                 value={config.rotation || "0"}
                 onChange={(val) => handleChange('rotation', val)}
                 options={[
@@ -173,7 +176,7 @@ export default function ControlPanel({
                 ]}
             />
             <CustomSelect
-                label="Graphics Renderer"
+                label={t('controlPanel.graphicsRenderer')}
                 value={config.renderDriver || 'auto'}
                 onChange={(val) => handleChange('renderDriver', mapRendererSelection(val))}
                 options={rendererOptions}
@@ -185,7 +188,7 @@ export default function ControlPanel({
         <main className="lg:col-span-6 space-y-4">
             <div className="glass p-3.5 rounded-2xl border border-zinc-800 bg-zinc-900/50 backdrop-blur-md">
                 <div className="flex items-center gap-2 mb-1.5">
-                    <label className="text-[10px] font-black uppercase text-zinc-400 tracking-widest">Capture Source</label>
+                    <label className="text-[10px] font-black uppercase text-zinc-400 tracking-widest">{t('controlPanel.captureSource')}</label>
                 </div>
                 <div className="grid grid-cols-3 gap-1.5 bg-zinc-950/50 p-1 rounded-xl border border-zinc-800">
                     <button
@@ -193,21 +196,21 @@ export default function ControlPanel({
                         className={`flex flex-col items-center gap-1.5 py-2.5 rounded-lg transition-all ${config.sessionMode === 'mirror' ? 'bg-primary text-on-primary shadow-lg shadow-primary/20' : 'text-zinc-500 hover:text-primary hover:bg-zinc-950 transition-all'}`}
                     >
                         <Monitor size={18} strokeWidth={2.5} />
-                        <span className="text-[9px] font-black uppercase tracking-wider">Screen</span>
+                        <span className="text-[9px] font-black uppercase tracking-wider">{t('controlPanel.screen')}</span>
                     </button>
                     <button
                         onClick={() => handleChange('sessionMode', 'camera')}
                         className={`flex flex-col items-center gap-1.5 py-2.5 rounded-lg transition-all ${config.sessionMode === 'camera' ? 'bg-primary text-on-primary shadow-lg shadow-primary/20' : 'text-zinc-500 hover:text-primary hover:bg-zinc-950 transition-all'}`}
                     >
                         <Camera size={18} strokeWidth={2.5} />
-                        <span className="text-[9px] font-black uppercase tracking-wider">Camera</span>
+                        <span className="text-[9px] font-black uppercase tracking-wider">{t('controlPanel.camera')}</span>
                     </button>
                     <button
                         onClick={() => handleChange('sessionMode', 'desktop')}
                         className={`flex flex-col items-center gap-1.5 py-2.5 rounded-lg transition-all ${config.sessionMode === 'desktop' ? 'bg-primary text-on-primary shadow-lg shadow-primary/20' : 'text-zinc-500 hover:text-primary hover:bg-zinc-950 transition-all'}`}
                     >
                         <LayoutGrid size={18} strokeWidth={2.5} />
-                        <span className="text-[9px] font-black uppercase tracking-wider">Desktop</span>
+                        <span className="text-[9px] font-black uppercase tracking-wider">{t('controlPanel.desktop')}</span>
                     </button>
                 </div>
             </div>
@@ -215,15 +218,15 @@ export default function ControlPanel({
             <div className="glass p-3.5 rounded-xl space-y-3 transition-all duration-300 border border-zinc-800 bg-zinc-900/40 backdrop-blur-md relative z-20">
                 <div className="flex justify-between items-center border-b border-zinc-800/60 pb-1.5 mb-1">
                     <div className="flex items-center gap-3">
-                        <h2 className="text-[11px] font-black uppercase text-zinc-400 tracking-widest">Engine Configuration</h2>
+                        <h2 className="text-[11px] font-black uppercase text-zinc-400 tracking-widest">{t('controlPanel.engineConfiguration')}</h2>
                         <div className="flex gap-1.5">
                             {config.sessionMode === 'mirror' && (config.hidKeyboard || config.hidMouse) && config.otgPure && (
                                 <span className="text-[8px] font-bold uppercase px-1.5 py-0.5 rounded bg-red-500/10 text-red-500/80 border border-red-500/20">
-                                    OTG Only
+                                    {t('controlPanel.otgOnly')}
                                 </span>
                             )}
                             <span className={`text-[8px] font-bold uppercase px-1.5 py-0.5 rounded border ${isRunning ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-zinc-800/30 text-zinc-600 border-zinc-700/30'}`}>
-                                {isRunning ? 'Active' : 'Ready'}
+                                {isRunning ? t('controlPanel.active') : t('controlPanel.ready')}
                             </span>
                         </div>
                     </div>
@@ -236,15 +239,15 @@ export default function ControlPanel({
                             <div className="space-y-3 p-3 rounded-xl border border-zinc-800 bg-zinc-950/20">
                                 <div className="flex items-center gap-2 mb-0.5">
                                     <Keyboard size={12} className="text-primary" />
-                                    <span className="text-[9px] font-black uppercase text-zinc-400 tracking-widest">Input Enhancements</span>
+                                    <span className="text-[9px] font-black uppercase text-zinc-400 tracking-widest">{t('controlPanel.inputEnhancements')}</span>
                                 </div>
                                 <p className="text-[8px] text-zinc-500 leading-relaxed mb-1">
-                                    Control your phone using your computer's Mouse and Keyboard (OTG mode).
+                                    {t('controlPanel.inputEnhancementsDescription')}
                                 </p>
 
                                 <div className="grid grid-cols-1 gap-3">
                                     {/* HID Keyboard */}
-                                    <Tooltip text="Simulates a physical keyboard. Enables support for special characters and international layouts (e.g., Polish).">
+                                    <Tooltip text={t('controlPanel.hidKeyboardTooltip')}>
                                         <div className="flex items-start gap-3 cursor-pointer group" onClick={() => handleChange('hidKeyboard', !config.hidKeyboard)}>
                                             <div className={`mt-0.5 w-3.5 h-3.5 rounded border flex items-center justify-center transition-colors ${config.hidKeyboard ? 'bg-primary border-primary' : 'border-zinc-700 group-hover:border-primary'}`}>
                                                 {config.hidKeyboard && <div className="w-1.5 h-1.5 bg-black rounded-[1px]" />}
@@ -252,14 +255,14 @@ export default function ControlPanel({
                                             <div className="flex flex-col">
                                                 <div className="flex items-center gap-1.5">
                                                     <Keyboard size={10} className={config.hidKeyboard ? 'text-primary' : 'text-zinc-500'} />
-                                                    <span className="text-[10px] font-bold uppercase text-zinc-300 tracking-wide group-hover:text-primary">HID Keyboard</span>
+                                                    <span className="text-[10px] font-bold uppercase text-zinc-300 tracking-wide group-hover:text-primary">{t('controlPanel.hidKeyboard')}</span>
                                                 </div>
                                             </div>
                                         </div>
                                     </Tooltip>
 
                                     {/* HID Mouse */}
-                                    <Tooltip text="Simulates a physical mouse. Provides high-precision cursor control and eliminates input lag.">
+                                    <Tooltip text={t('controlPanel.hidMouseTooltip')}>
                                         <div className="flex items-start gap-3 cursor-pointer group" onClick={() => handleChange('hidMouse', !config.hidMouse)}>
                                             <div className={`mt-0.5 w-3.5 h-3.5 rounded border flex items-center justify-center transition-colors ${config.hidMouse ? 'bg-primary border-primary' : 'border-zinc-700 group-hover:border-primary'}`}>
                                                 {config.hidMouse && <div className="w-1.5 h-1.5 bg-black rounded-[1px]" />}
@@ -267,7 +270,7 @@ export default function ControlPanel({
                                             <div className="flex flex-col">
                                                 <div className="flex items-center gap-1.5">
                                                     <Mouse size={10} className={config.hidMouse ? 'text-primary' : 'text-zinc-500'} />
-                                                    <span className="text-[10px] font-bold uppercase text-zinc-300 tracking-wide group-hover:text-primary">HID Mouse</span>
+                                                    <span className="text-[10px] font-bold uppercase text-zinc-300 tracking-wide group-hover:text-primary">{t('controlPanel.hidMouse')}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -275,13 +278,13 @@ export default function ControlPanel({
 
                                     {/* Advanced: Pure HID (Old OTG Pure) */}
                                     {(config.hidKeyboard || config.hidMouse) && (
-                                        <Tooltip text="Hides the screen mirror. Use your PC purely as a keyboard and mouse for your phone.">
+                                        <Tooltip text={t('controlPanel.pureHidTooltip')}>
                                             <div className="flex items-start gap-3 ml-0.5 cursor-pointer group animate-in slide-in-from-top-1 duration-200" onClick={() => handleChange('otgPure', !config.otgPure)}>
                                                 <div className={`mt-0.5 w-3 h-3 rounded border flex items-center justify-center transition-colors ${config.otgPure ? 'bg-red-500 border-red-500' : 'border-zinc-700 group-hover:border-red-500'}`}>
                                                     {config.otgPure && <div className="w-1 h-1 bg-white rounded-[1px]" />}
                                                 </div>
                                                 <div className="flex flex-col">
-                                                    <span className={`text-[9px] font-bold uppercase tracking-wider transition-colors ${config.otgPure ? 'text-red-400' : 'text-zinc-500 group-hover:text-red-400'}`}>Pure HID (No Mirror)</span>
+                                                    <span className={`text-[9px] font-bold uppercase tracking-wider transition-colors ${config.otgPure ? 'text-red-400' : 'text-zinc-500 group-hover:text-red-400'}`}>{t('controlPanel.pureHid')}</span>
                                                 </div>
                                             </div>
                                         </Tooltip>
@@ -291,7 +294,7 @@ export default function ControlPanel({
 
                             <div className={`space-y-2.5 pt-0.5 transition-all duration-300 ${config.otgPure ? 'opacity-30 pointer-events-none grayscale' : 'opacity-100'}`}>
                                 <PerformanceGrid />
-                                <BitrateControl value={config.bitrate || 8} onChange={(v) => handleChange('bitrate', v)} />
+                                <BitrateControl label={t('controlPanel.bitrate')} value={config.bitrate || 8} onChange={(v) => handleChange('bitrate', v)} />
                             </div>
                         </>
                     )}
@@ -308,46 +311,46 @@ export default function ControlPanel({
                                 </div>
                                 <div className="space-y-1">
                                     <div className="flex items-center justify-between">
-                                        <h4 className="text-[10px] font-black uppercase text-primary tracking-widest">Webcam Pro Tip</h4>
+                                        <h4 className="text-[10px] font-black uppercase text-primary tracking-widest">{t('controlPanel.webcamProTip')}</h4>
                                         <a
                                             href="https://obsproject.com/"
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             className="text-[9px] font-bold text-zinc-500 hover:text-primary flex items-center gap-1 transition-colors"
                                         >
-                                            Get OBS <ExternalLink size={10} />
+                                            {t('controlPanel.getObs')} <ExternalLink size={10} />
                                         </a>
                                     </div>
                                     <p className="text-[10px] text-zinc-400 leading-relaxed">
-                                        Use your phone as a high-quality webcam in Zoom/Teams by capturing this Scrcpy window in <span className="text-zinc-200 font-bold">OBS Studio</span> and starting its <span className="text-zinc-200 font-bold">Virtual Camera</span>.
+                                        {t('controlPanel.webcamProTipTextBefore')} <span className="text-zinc-200 font-bold">{t('controlPanel.webcamProTipObs')}</span> {t('controlPanel.webcamProTipAndStart')} <span className="text-zinc-200 font-bold">{t('controlPanel.webcamProTipVirtualCamera')}</span>{t('controlPanel.webcamProTipTextAfter')}
                                     </p>
                                 </div>
                             </div>
 
                             <div className="grid grid-cols-2 gap-2">
                                 <CustomSelect
-                                    label="Facing"
+                                    label={t('controlPanel.facing')}
                                     value={config.cameraFacing || "back"}
                                     onChange={(val) => handleChange('cameraFacing', val)}
                                     options={[
-                                        { value: "back", label: "Back" },
-                                        { value: "front", label: "Front" },
-                                        { value: "external", label: "Ext" },
+                                        { value: "back", label: t('controlPanel.facingBack') },
+                                        { value: "front", label: t('controlPanel.facingFront') },
+                                        { value: "external", label: t('controlPanel.facingExternal') },
                                     ]}
                                 />
                                 <div className="space-y-1">
                                     <div className="flex justify-between items-center h-4">
                                         <div className="flex items-center gap-1.5">
-                                            <label className="text-[9px] font-black text-zinc-500 uppercase tracking-tighter">Camera Device</label>
-                                            <Tooltip text="Select a specific lens (e.g. Ultra-Wide, Front) from the list." placement="top" />
+                                            <label className="text-[9px] font-black text-zinc-500 uppercase tracking-tighter">{t('controlPanel.cameraDevice')}</label>
+                                            <Tooltip text={t('controlPanel.cameraDeviceTooltip')} placement="top" />
                                         </div>
                                         <div className="flex items-center gap-1.5">
-                                            <Tooltip text="Click to scan for available camera lenses." placement="top" />
+                                            <Tooltip text={t('controlPanel.refreshLensesTooltip')} placement="top" />
                                             <button
                                                 onClick={() => onListOptions("--list-cameras")}
                                                 className="text-[8px] font-black uppercase text-primary hover:text-white transition-colors"
                                             >
-                                                Refresh Lenses
+                                                {t('controlPanel.refreshLenses')}
                                             </button>
                                         </div>
                                     </div>
@@ -355,7 +358,7 @@ export default function ControlPanel({
                                         value={config.cameraId || ""}
                                         onChange={(val) => handleChange('cameraId', val)}
                                         options={[
-                                            { value: "", label: "Auto Select" },
+                                            { value: "", label: t('controlPanel.autoSelect') },
                                             ...detectedCameras.map(cam => ({ value: cam.id, label: cam.name }))
                                         ]}
                                     />
@@ -364,7 +367,7 @@ export default function ControlPanel({
 
                             <div className="grid grid-cols-2 gap-2">
                                 <CustomSelect
-                                    label="Codec"
+                                    label={t('controlPanel.codec')}
                                     value={config.codec || "h264"}
                                     onChange={(val) => handleChange('codec', val)}
                                     options={[
@@ -374,11 +377,11 @@ export default function ControlPanel({
                                     ]}
                                 />
                                 <CustomSelect
-                                    label="Aspect"
+                                    label={t('controlPanel.aspect')}
                                     value={config.cameraAr || "0"}
                                     onChange={(val) => handleChange('cameraAr', val)}
                                     options={[
-                                        { value: "0", label: "Default" },
+                                        { value: "0", label: t('controlPanel.aspectDefault') },
                                         { value: "16:9", label: "16:9" },
                                         { value: "4:3", label: "4:3" },
                                     ]}
@@ -387,7 +390,7 @@ export default function ControlPanel({
 
                             <div className={`space-y-2.5 pt-0.5`}>
                                 <PerformanceGrid />
-                                <BitrateControl value={config.bitrate || 8} onChange={(v) => handleChange('bitrate', v)} />
+                                <BitrateControl label={t('controlPanel.bitrate')} value={config.bitrate || 8} onChange={(v) => handleChange('bitrate', v)} />
                             </div>
                         </div>
                     )}
@@ -399,23 +402,23 @@ export default function ControlPanel({
                                 <div className="flex items-center justify-between border-b border-zinc-800/50 pb-2">
                                     <div className="flex items-center gap-2">
                                         <Settings2 size={12} className="text-primary" />
-                                        <h3 className="text-[10px] font-black uppercase text-zinc-300 tracking-widest">Virtual Display Engine</h3>
+                                        <h3 className="text-[10px] font-black uppercase text-zinc-300 tracking-widest">{t('controlPanel.virtualDisplayEngine')}</h3>
                                     </div>
                                     <div className="flex items-center gap-3">
                                         <button
                                             onClick={() => handleChange('aspectRatioLock', !config.aspectRatioLock)}
                                             className={`flex items-center gap-1.5 transition-colors ${config.aspectRatioLock ? 'text-primary' : 'text-zinc-600 hover:text-zinc-400'}`}
-                                            title="Lock Aspect Ratio"
+                                            title={t('controlPanel.ratioLockTitle')}
                                         >
                                             {config.aspectRatioLock ? <Lock size={10} /> : <Unlock size={10} />}
-                                            <span className="text-[8px] font-black uppercase tracking-tighter">Ratio Lock</span>
+                                            <span className="text-[8px] font-black uppercase tracking-tighter">{t('controlPanel.ratioLock')}</span>
                                         </button>
                                     </div>
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-x-4 gap-y-3">
                                     <VDSlider
-                                        label="Width"
+                                        label={t('controlPanel.width')}
                                         value={config.vdWidth || 1920}
                                         min={480} max={3840}
                                         unit="px"
@@ -429,7 +432,7 @@ export default function ControlPanel({
                                         }}
                                     />
                                     <VDSlider
-                                        label="Height"
+                                        label={t('controlPanel.height')}
                                         value={config.vdHeight || 1080}
                                         min={360} max={2160}
                                         unit="px"
@@ -445,8 +448,8 @@ export default function ControlPanel({
                                     <div className="space-y-1">
                                         <div className="flex justify-between items-center h-4">
                                             <div className="flex items-center gap-1.5">
-                                                <label className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">UI Scaling (DPI)</label>
-                                                <Tooltip text="Lower DPI = Desktop/Tablet feel (larger UI). Higher DPI = Phone feel (smaller, denser UI)." placement="top" />
+                                                <label className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">{t('controlPanel.uiScaling')}</label>
+                                                <Tooltip text={t('controlPanel.uiScalingTooltip')} placement="top" />
                                             </div>
                                             <span className="text-[10px] font-black text-primary tabular-nums">{config.vdDpi || 420} DPI</span>
                                         </div>
@@ -460,7 +463,7 @@ export default function ControlPanel({
                                         />
                                     </div>
                                     <CustomSelect
-                                        label="Quick Presets"
+                                        label={t('controlPanel.quickPresets')}
                                         value={(() => {
                                             const w = config.vdWidth;
                                             const h = config.vdHeight;
@@ -477,10 +480,10 @@ export default function ControlPanel({
                                             if (val === 'ultrawide') setConfig({ ...config, vdWidth: 2560, vdHeight: 1080 });
                                         }}
                                         options={[
-                                            { value: "1080p", label: "1080p Standard" },
-                                            { value: "1440p", label: "1440p High" },
-                                            { value: "4k", label: "4K Ultra" },
-                                            { value: "ultrawide", label: "21:9 Ultra-Wide" },
+                                            { value: "1080p", label: t('controlPanel.preset1080p') },
+                                            { value: "1440p", label: t('controlPanel.preset1440p') },
+                                            { value: "4k", label: t('controlPanel.preset4k') },
+                                            { value: "ultrawide", label: t('controlPanel.presetUltrawide') },
                                         ]}
                                     />
                                 </div>
@@ -488,7 +491,7 @@ export default function ControlPanel({
 
                             <div className="space-y-2.5 pt-0.5">
                                 <PerformanceGrid showResolution={false} />
-                                <BitrateControl value={config.bitrate || 8} onChange={(v) => handleChange('bitrate', v)} />
+                                <BitrateControl label={t('controlPanel.bitrate')} value={config.bitrate || 8} onChange={(v) => handleChange('bitrate', v)} />
                             </div>
                         </div>
                     )}
@@ -507,8 +510,9 @@ export default function ControlPanel({
 
                         <span className="relative z-10 flex items-center justify-center gap-3 text-on-primary">
                             <Play fill="currentColor" size={18} className="group-hover:scale-110 transition-transform" />
-                            {config.sessionMode === 'mirror' ? ((config.hidKeyboard || config.hidMouse) && config.otgPure ? 'Initialize OTG' : 'Start Mission') :
-                                config.sessionMode === 'camera' ? 'Engage Camera' : 'Eject to Desktop'}
+                            {config.sessionMode === 'mirror'
+                                ? ((config.hidKeyboard || config.hidMouse) && config.otgPure ? t('controlPanel.initializeOtg') : t('controlPanel.startMission'))
+                                : config.sessionMode === 'camera' ? t('controlPanel.engageCamera') : t('controlPanel.ejectToDesktop')}
                         </span>
                     </button>
                 ) : (
@@ -521,7 +525,7 @@ export default function ControlPanel({
 
                         <span className="relative z-10 flex items-center justify-center gap-3 text-white">
                             <Square fill="white" size={18} className="group-hover:rotate-90 transition-transform duration-500" />
-                            Stop Session
+                            {t('controlPanel.stopSession')}
                         </span>
                     </button>
                 )}

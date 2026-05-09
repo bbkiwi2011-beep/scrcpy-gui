@@ -1,5 +1,6 @@
 import React from 'react';
 import { Smartphone, RefreshCw, Usb, Wifi, UploadCloud, Zap } from 'lucide-react';
+import { useI18n } from '../i18n';
 
 export interface SidebarProps {
     devices: string[];
@@ -35,6 +36,7 @@ export default function Sidebar({
     historyDevices = [],
     clearHistory = () => { }
 }: SidebarProps) {
+    const { t } = useI18n();
     const [activeTab, setActiveTab] = React.useState<'usb' | 'wireless'>('usb');
     const [connectIp, setConnectIp] = React.useState('');
     const [pairIp, setPairIp] = React.useState('');
@@ -52,16 +54,16 @@ export default function Sidebar({
                 <div className="flex justify-between items-center border-b border-zinc-800/50 pb-2 mb-1">
                     <h2 className="text-[11px] font-black uppercase tracking-widest flex items-center gap-2 text-zinc-400">
                         <Smartphone size={14} className="text-primary" />
-                        Device Hub
+                        {t('sidebar.deviceHub')}
                     </h2>
                     <div className="flex gap-2 items-center">
                         <button
                             onClick={onKillAdb}
                             className="flex items-center gap-1.5 px-2 py-1 rounded-md text-[9px] font-black uppercase tracking-tighter text-zinc-600 hover:text-red-400 hover:bg-red-500/5 transition-all group/zap"
-                            title="Force kill all adb operations"
+                            title={t('sidebar.killAdbTitle')}
                         >
                             <Zap size={10} className="group-hover/zap:fill-red-400 group-hover/zap:scale-110 transition-all" />
-                            Kill ADB
+                            {t('sidebar.killAdb')}
                         </button>
                         <button
                             onClick={onRefresh}
@@ -69,7 +71,7 @@ export default function Sidebar({
                             className={`flex items-center gap-1.5 px-2.5 py-1 bg-zinc-800/50 hover:bg-primary/20 border border-zinc-800 hover:border-primary/30 rounded-md text-[9px] font-black uppercase tracking-widest text-primary hover:text-white transition-all group/refresh ${isRefreshing ? 'opacity-50 cursor-not-allowed' : ''}`}
                         >
                             <RefreshCw size={10} className={`group-hover/refresh:rotate-180 transition-transform duration-500 ${isRefreshing ? 'animate-spin' : ''}`} />
-                            {isRefreshing ? 'Syncing...' : 'Refresh'}
+                            {isRefreshing ? t('sidebar.syncing') : t('sidebar.refresh')}
                         </button>
                     </div>
                 </div>
@@ -77,7 +79,7 @@ export default function Sidebar({
                 <div className="space-y-2">
                     <div className="flex flex-col gap-1.5 max-h-[220px] overflow-y-auto pr-1 custom-scrollbar">
                         {devices.length === 0 ? (
-                            <div className="text-[10px] text-zinc-600 italic py-4 text-center border border-dashed border-zinc-800/50 rounded-lg bg-black/20">No devices detected</div>
+                            <div className="text-[10px] text-zinc-600 italic py-4 text-center border border-dashed border-zinc-800/50 rounded-lg bg-black/20">{t('sidebar.noDevicesDetected')}</div>
                         ) : (
                             devices.map(d => {
                                 const isRunning = runningDevices.includes(d);
@@ -97,20 +99,20 @@ export default function Sidebar({
                                                 {isRunning ? (
                                                     <span className="flex items-center gap-1">
                                                         <span className="w-1 h-1 rounded-full bg-emerald-500 shadow-[0_0_5px_rgba(16,185,129,0.5)] animate-pulse" />
-                                                        <span className="text-[8px] font-black text-emerald-500 uppercase tracking-widest">Live</span>
+                                                        <span className="text-[8px] font-black text-emerald-500 uppercase tracking-widest">{t('sidebar.live')}</span>
                                                     </span>
                                                 ) : (
-                                                    <span className="text-[8px] font-black text-zinc-600 uppercase tracking-widest">Ready</span>
+                                                    <span className="text-[8px] font-black text-zinc-600 uppercase tracking-widest">{t('sidebar.ready')}</span>
                                                 )}
                                                 {d.includes('.') ? (
                                                     <span className="flex items-center gap-1 bg-primary/10 px-1 py-0.5 rounded border border-primary/20">
                                                         <Wifi size={8} className="text-primary" />
-                                                        <span className="text-[7px] font-black text-primary uppercase tracking-tighter">Wi-Fi</span>
+                                                        <span className="text-[7px] font-black text-primary uppercase tracking-tighter">{t('sidebar.wifi')}</span>
                                                     </span>
                                                 ) : (
                                                     <span className="flex items-center gap-1 bg-zinc-800 px-1 py-0.5 rounded border border-zinc-700">
                                                         <Usb size={8} className="text-zinc-400" />
-                                                        <span className="text-[7px] font-black text-zinc-400 uppercase tracking-tighter">USB</span>
+                                                        <span className="text-[7px] font-black text-zinc-400 uppercase tracking-tighter">{t('sidebar.usb')}</span>
                                                     </span>
                                                 )}
                                             </div>
@@ -126,13 +128,13 @@ export default function Sidebar({
                             onClick={() => setActiveTab('usb')}
                             className={`flex-1 py-1.5 text-[9px] font-black uppercase tracking-widest flex items-center justify-center gap-2 rounded-md transition-all ${activeTab === 'usb' ? 'bg-primary text-on-primary shadow-lg translate-y-[-1px]' : 'text-zinc-500 hover:text-zinc-300'}`}
                         >
-                            <Usb size={11} /> USB
+                            <Usb size={11} /> {t('sidebar.usb')}
                         </button>
                         <button
                             onClick={() => setActiveTab('wireless')}
                             className={`flex-1 py-1.5 text-[9px] font-black uppercase tracking-widest flex items-center justify-center gap-2 rounded-md transition-all ${activeTab === 'wireless' ? 'bg-primary text-on-primary shadow-lg translate-y-[-1px]' : 'text-zinc-500 hover:text-zinc-300'}`}
                         >
-                            <Wifi size={11} /> Wireless
+                            <Wifi size={11} /> {t('sidebar.wireless')}
                         </button>
                     </div>
 
@@ -141,10 +143,10 @@ export default function Sidebar({
                             <div className="bg-primary/5 border border-primary/20 rounded-lg p-3 space-y-1.5">
                                 <div className="flex items-center gap-2">
                                     <div className="w-1 h-1 bg-primary rounded-full" />
-                                    <span className="text-[9px] font-black uppercase text-primary tracking-widest">USB Setup Tip</span>
+                                    <span className="text-[9px] font-black uppercase text-primary tracking-widest">{t('sidebar.usbSetupTip')}</span>
                                 </div>
                                 <p className="text-[10px] text-zinc-500 leading-relaxed font-medium">
-                                    Enable <span className="text-zinc-300 underline decoration-primary/30 decoration-dashed">Developer Options</span> and <span className="text-zinc-300 underline decoration-primary/30 decoration-dashed">USB Debugging</span> on your phone.
+                                    {t('sidebar.usbSetupTipTextBefore')} <span className="text-zinc-300 underline decoration-primary/30 decoration-dashed">{t('sidebar.usbSetupTipDeveloperOptions')}</span> {t('sidebar.usbSetupTipAnd')} <span className="text-zinc-300 underline decoration-primary/30 decoration-dashed">{t('sidebar.usbSetupTipUsbDebugging')}</span> {t('sidebar.usbSetupTipTextAfter')}
                                 </p>
                             </div>
                         </div>
@@ -155,20 +157,20 @@ export default function Sidebar({
                             <div className="bg-primary/5 border border-primary/20 rounded-lg p-3 space-y-1.5">
                                 <div className="flex items-center gap-2">
                                     <div className="w-1 h-1 bg-primary rounded-full" />
-                                    <span className="text-[9px] font-black uppercase text-primary tracking-widest">Wireless Setup Tip</span>
+                                    <span className="text-[9px] font-black uppercase text-primary tracking-widest">{t('sidebar.wirelessSetupTip')}</span>
                                 </div>
                                 <p className="text-[10px] text-zinc-500 leading-relaxed font-medium">
-                                    Connect device to <span className="text-zinc-300 underline decoration-primary/30 decoration-dashed">Same Wi-Fi</span> and enable <span className="text-zinc-300 underline decoration-primary/30 decoration-dashed">Wireless Debugging</span>.
+                                    {t('sidebar.wirelessSetupTipTextBefore')} <span className="text-zinc-300 underline decoration-primary/30 decoration-dashed">{t('sidebar.wirelessSetupTipSameWifi')}</span> {t('sidebar.wirelessSetupTipAnd')} <span className="text-zinc-300 underline decoration-primary/30 decoration-dashed">{t('sidebar.wirelessSetupTipWirelessDebugging')}</span>{t('sidebar.wirelessSetupTipTextAfter')}
                                 </p>
                             </div>
                             <div className="space-y-3">
                                 <div className="flex items-center justify-between border-b border-zinc-800/50 pb-1.5">
-                                    <span className="text-[9px] font-black uppercase text-zinc-500 tracking-widest">IP Connect</span>
+                                    <span className="text-[9px] font-black uppercase text-zinc-500 tracking-widest">{t('sidebar.ipConnect')}</span>
                                     <div className="flex items-center gap-2 group cursor-pointer" onClick={() => onToggleAuto(!isAutoConnect)}>
                                         <div className={`w-3 h-3 rounded-[2px] border flex items-center justify-center transition-colors ${isAutoConnect ? 'bg-primary border-primary' : 'border-zinc-700 group-hover:border-zinc-500'}`}>
                                             {isAutoConnect && <div className="w-1.5 h-1.5 bg-black rounded-[0.5px]" />}
                                         </div>
-                                        <span className="text-[9px] font-black text-zinc-500 uppercase tracking-tighter">Auto</span>
+                                        <span className="text-[9px] font-black text-zinc-500 uppercase tracking-tighter">{t('sidebar.auto')}</span>
                                     </div>
                                 </div>
 
@@ -177,7 +179,7 @@ export default function Sidebar({
                                         <Wifi size={10} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-zinc-600" />
                                         <input
                                             type="text"
-                                            placeholder="192.168.x.x:5555"
+                                            placeholder={t('sidebar.ipPlaceholder')}
                                             value={connectIp}
                                             onChange={(e) => setConnectIp(e.target.value)}
                                             className="w-full bg-black/40 border border-zinc-800 rounded-lg pl-7 pr-3 py-1.5 text-xs text-zinc-200 focus:border-primary/40 focus:bg-black/60 transition-all outline-none"
@@ -188,7 +190,7 @@ export default function Sidebar({
                                         disabled={isRefreshing}
                                         className={`px-4 bg-zinc-800 hover:bg-primary text-zinc-400 hover:text-on-primary rounded-lg text-[10px] font-black uppercase transition-all active:scale-95 ${isRefreshing ? 'opacity-50 cursor-not-allowed' : ''}`}
                                     >
-                                        {isRefreshing ? '...' : 'Connect'}
+                                        {isRefreshing ? t('sidebar.connecting') : t('sidebar.connect')}
                                     </button>
                                 </div>
 
@@ -198,12 +200,12 @@ export default function Sidebar({
                             {historyDevices.length > 0 && (
                                 <div className="space-y-3 pt-1">
                                     <div className="flex items-center justify-between border-b border-zinc-800/50 pb-1.5">
-                                        <span className="text-[9px] font-black uppercase text-primary/60 tracking-widest">Recent Devices</span>
+                                        <span className="text-[9px] font-black uppercase text-primary/60 tracking-widest">{t('sidebar.recentDevices')}</span>
                                         <button
                                             onClick={clearHistory}
                                             className="text-[9px] text-zinc-600 hover:text-red-400 font-bold uppercase tracking-tighter transition-colors"
                                         >
-                                            Clear
+                                            {t('sidebar.clear')}
                                         </button>
                                     </div>
                                     <div className="space-y-2">
@@ -221,7 +223,7 @@ export default function Sidebar({
                                                     <span className="text-[10px] font-bold text-zinc-400 group-hover:text-zinc-200">{ip}</span>
                                                 </div>
                                                 <div className="text-[8px] text-primary opacity-0 group-hover:opacity-100 uppercase font-black tracking-tighter">
-                                                    Connect
+                                                    {t('sidebar.connect')}
                                                 </div>
                                             </button>
                                         ))}
@@ -231,11 +233,11 @@ export default function Sidebar({
 
                             {/* Pairing Setup */}
                             <div className="space-y-3 pt-1">
-                                <span className="text-[9px] font-black uppercase text-zinc-500 tracking-widest border-b border-zinc-800/50 block pb-1.5">2. Pair Device (Android 11+)</span>
+                                <span className="text-[9px] font-black uppercase text-zinc-500 tracking-widest border-b border-zinc-800/50 block pb-1.5">{t('sidebar.pairDeviceTitle')}</span>
                                 <div className="grid grid-cols-2 gap-2">
                                     <input
                                         type="text"
-                                        placeholder="IP:Port"
+                                        placeholder={t('sidebar.ipPortPlaceholder')}
                                         value={pairIp}
                                         onChange={(e) => setPairIp(e.target.value)}
                                         className="w-full bg-black/40 border border-zinc-800 rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 focus:border-primary/40 transition-all outline-none"
@@ -243,7 +245,7 @@ export default function Sidebar({
                                     <input
                                         ref={pairCodeRef}
                                         type="text"
-                                        placeholder="Pairing Code"
+                                        placeholder={t('sidebar.pairingCodePlaceholder')}
                                         value={pairCode}
                                         onChange={(e) => setPairCode(e.target.value)}
                                         className={`w-full bg-black/40 border rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 transition-all outline-none ${pairIp ? 'border-amber-400/50 focus:border-amber-400' : 'border-zinc-800 focus:border-primary/40'}`}
@@ -265,7 +267,7 @@ export default function Sidebar({
                                     disabled={isRefreshing}
                                     className={`w-full py-1.5 border border-zinc-800 hover:border-primary/50 hover:bg-primary/5 text-zinc-500 hover:text-primary rounded-lg text-[10px] font-black uppercase transition-all active:scale-[0.98] ${isRefreshing ? 'opacity-50 cursor-not-allowed' : ''}`}
                                 >
-                                    {isRefreshing ? 'Synchronizing...' : 'Start Pairing'}
+                                    {isRefreshing ? t('sidebar.synchronizing') : t('sidebar.startPairing')}
                                 </button>
                             </div>
 
@@ -282,8 +284,8 @@ export default function Sidebar({
                     <UploadCloud className="text-primary group-hover:scale-110 transition-transform" size={24} />
                 </div>
                 <div className="text-center">
-                    <h3 className="text-[11px] font-black text-zinc-300 uppercase tracking-widest">Flash / Push Files</h3>
-                    <p className="text-[9px] text-zinc-500 font-bold uppercase tracking-tighter mt-1 opacity-60">Drag & drop ANY FILE OR APK</p>
+                    <h3 className="text-[11px] font-black text-zinc-300 uppercase tracking-widest">{t('sidebar.flashPushFiles')}</h3>
+                    <p className="text-[9px] text-zinc-500 font-bold uppercase tracking-tighter mt-1 opacity-60">{t('sidebar.flashPushSubtitle')}</p>
                 </div>
             </div>
         </aside>

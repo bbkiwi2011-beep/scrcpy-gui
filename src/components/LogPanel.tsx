@@ -1,6 +1,7 @@
 import { useRef, useEffect, useState, memo } from 'react';
 import { Terminal, Trash2, Download } from 'lucide-react';
 import { invoke } from '@tauri-apps/api/core';
+import { useI18n } from '../i18n';
 
 interface LogPanelProps {
     logs: string[];
@@ -10,6 +11,7 @@ interface LogPanelProps {
 }
 
 const LogPanel = memo(({ logs, onClear, onAddLog, onRunCommand }: LogPanelProps) => {
+    const { t } = useI18n();
     const containerRef = useRef<HTMLDivElement>(null);
     const [isLive, setIsLive] = useState(false);
     const [command, setCommand] = useState("");
@@ -39,7 +41,7 @@ const LogPanel = memo(({ logs, onClear, onAddLog, onRunCommand }: LogPanelProps)
                 <div className="flex items-center gap-3">
                     <Terminal size={12} className="text-primary" />
                     <div className="flex items-center gap-2">
-                        <span className="font-black text-zinc-400 tracking-[0.2em] uppercase text-[9px]">System Console</span>
+                        <span className="font-black text-zinc-400 tracking-[0.2em] uppercase text-[9px]">{t('logPanel.systemConsole')}</span>
                         <div className={`w-1.5 h-1.5 rounded-full transition-all duration-500 ${isLive ? 'bg-primary shadow-[0_0_8px_rgba(var(--primary-rgb),0.8)]' : 'bg-zinc-700'}`} />
                     </div>
                 </div>
@@ -65,26 +67,26 @@ const LogPanel = memo(({ logs, onClear, onAddLog, onRunCommand }: LogPanelProps)
                                     name: fileName
                                 });
                                 if (onAddLog) {
-                                    onAddLog(`[SYSTEM] Diagnostic report saved to Downloads: ${fileName}`);
+                                    onAddLog(t('logPanel.diagnosticReportSaved', { fileName }));
                                 } else {
-                                    alert(`Report saved to Downloads: ${fileName}`);
+                                    alert(t('logPanel.reportSavedAlert', { fileName }));
                                 }
                             } catch (e) {
                                 console.error("Export failed:", e);
                             }
                         }}
                         className="flex items-center gap-1.5 text-[9px] font-black uppercase text-zinc-500 hover:text-primary transition-all px-2 py-1 rounded-md hover:bg-white/5 active:scale-95"
-                        title="Export diagnostic report to Downloads"
+                        title={t('logPanel.reportTitle')}
                     >
                         <Download size={10} />
-                        Report
+                        {t('logPanel.report')}
                     </button>
                     <button
                         onClick={onClear}
                         className="flex items-center gap-1.5 text-[9px] font-black uppercase text-zinc-500 hover:text-red-400 transition-all px-2 py-1 rounded-md hover:bg-white/5 active:scale-95"
                     >
                         <Trash2 size={10} />
-                        Clear
+                        {t('logPanel.clear')}
                     </button>
                 </div>
             </div>
@@ -93,7 +95,7 @@ const LogPanel = memo(({ logs, onClear, onAddLog, onRunCommand }: LogPanelProps)
             <div ref={containerRef} className="flex-1 overflow-y-auto p-4 pt-2 custom-scrollbar bg-[radial-gradient(circle_at_top_left,_rgba(var(--primary-rgb),0.03),_transparent)]">
                 {logs.length === 0 ? (
                     <div className="h-full flex items-center justify-center">
-                        <span className="text-[10px] text-zinc-700 font-bold uppercase tracking-widest animate-pulse">Waiting for sequence...</span>
+                        <span className="text-[10px] text-zinc-700 font-bold uppercase tracking-widest animate-pulse">{t('logPanel.waitingForSequence')}</span>
                     </div>
                 ) : (
                     <div className="space-y-1">
@@ -117,7 +119,7 @@ const LogPanel = memo(({ logs, onClear, onAddLog, onRunCommand }: LogPanelProps)
                     value={command}
                     onChange={(e) => setCommand(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    placeholder="Enter command (e.g. adb shell, scrcpy --help)..."
+                    placeholder={t('logPanel.terminalPlaceholder')}
                     className="flex-1 bg-transparent border-none outline-none text-[11px] text-zinc-300 placeholder:text-zinc-700 font-mono transition-colors focus:placeholder:text-zinc-800"
                 />
             </div>

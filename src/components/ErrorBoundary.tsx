@@ -1,6 +1,8 @@
 import React, { ErrorInfo, ReactNode } from "react";
 import { AlertCircle, Download, RefreshCcw } from "lucide-react";
 import { invoke } from "@tauri-apps/api/core";
+import { I18nContext } from "../i18n";
+import { en } from "../i18n/locales/en";
 
 interface Props {
     children: ReactNode;
@@ -12,6 +14,9 @@ interface State {
 }
 
 export default class ErrorBoundary extends React.Component<Props, State> {
+    static contextType = I18nContext;
+    declare context: React.ContextType<typeof I18nContext>;
+
     public state: State = {
         hasError: false,
         error: null,
@@ -24,6 +29,25 @@ export default class ErrorBoundary extends React.Component<Props, State> {
     public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
         console.error("Uncaught error:", error, errorInfo);
     }
+
+    private translate = (key: string, vars?: Record<string, string | number | boolean>): string => {
+        if (this.context && typeof this.context.t === 'function') {
+            return this.context.t(key, vars);
+        }
+        // Manual fallback to English when context is unavailable.
+        const segments = key.split('.');
+        let cursor: unknown = en;
+        for (const segment of segments) {
+            if (cursor && typeof cursor === 'object' && segment in (cursor as Record<string, unknown>)) {
+                cursor = (cursor as Record<string, unknown>)[segment];
+            } else {
+                return key;
+            }
+        }
+        if (typeof cursor !== 'string') return key;
+        if (!vars) return cursor;
+        return cursor.replace(/\{(\w+)\}/g, (m, k) => (vars[k] !== undefined ? String(vars[k]) : m));
+    };
 
     private handleExportDiagnostics = async () => {
         const storageData: Record<string, string> = {};
@@ -46,7 +70,7 @@ export default class ErrorBoundary extends React.Component<Props, State> {
                 content: JSON.stringify(diagnostics, null, 2),
                 name: fileName
             });
-            alert(`Diagnostic report saved to Downloads as: ${fileName}`);
+            alert(this.translate('errorBoundary.diagnosticSavedAlert', { fileName }));
         } catch (e) {
             console.error("Export failed:", e);
         }
@@ -54,6 +78,7 @@ export default class ErrorBoundary extends React.Component<Props, State> {
 
     public render() {
         if (this.state.hasError) {
+            const t = this.translate;
             return (
                 <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-6 text-zinc-200 font-sans">
                     <div className="max-w-md w-full glass border border-red-500/20 bg-red-500/5 p-8 rounded-3xl space-y-6 text-center shadow-2xl backdrop-blur-xl">
@@ -62,14 +87,14 @@ export default class ErrorBoundary extends React.Component<Props, State> {
                         </div>
 
                         <div className="space-y-2">
-                            <h1 className="text-xl font-black uppercase tracking-widest text-white">System Breach Detected</h1>
-                            <p className="text-sm text-zinc-400 font-medium">An unexpected error has crashed the mission control interface.</p>
+                            <h1 className="text-xl font-black uppercase tracking-widest text-white">{t('errorBoundary.title')}</h1>
+                            <p className="text-sm text-zinc-400 font-medium">{t('errorBoundary.subtitle')}</p>
                         </div>
 
                         <div className="bg-black/40 border border-zinc-800 rounded-xl p-4 text-left overflow-hidden">
-                            <p className="text-[10px] font-mono text-zinc-500 uppercase mb-2 tracking-tighter">Error Signature</p>
+                            <p className="text-[10px] font-mono text-zinc-500 uppercase mb-2 tracking-tighter">{t('errorBoundary.errorSignature')}</p>
                             <p className="text-[11px] font-mono text-red-400 break-all leading-relaxed">
-                                {this.state.error?.message || "Critical System Failure"}
+                                {this.state.error?.message || t('errorBoundary.criticalSystemFailure')}
                             </p>
                         </div>
 
@@ -79,18 +104,18 @@ export default class ErrorBoundary extends React.Component<Props, State> {
                                 className="flex items-center justify-center gap-2 py-3 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-xl text-xs font-black uppercase tracking-widest transition-all active:scale-95"
                             >
                                 <RefreshCcw size={14} />
-                                Reboot
+                                {t('errorBoundary.reboot')}
                             </button>
                             <button
                                 onClick={this.handleExportDiagnostics}
                                 className="flex items-center justify-center gap-2 py-3 bg-primary text-on-primary rounded-xl text-xs font-black uppercase tracking-widest transition-all active:scale-95 shadow-lg shadow-primary/20 hover:opacity-90"
                             >
                                 <Download size={14} />
-                                Export logs
+                                {t('errorBoundary.exportLogs')}
                             </button>
                         </div>
 
-                        <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest">Antigravity Recovery Engine v1.0</p>
+                        <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest">{t('errorBoundary.recoveryEngine')}</p>
                     </div>
                 </div>
             );
