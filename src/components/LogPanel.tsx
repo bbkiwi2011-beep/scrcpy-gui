@@ -35,7 +35,7 @@ const LogPanel = memo(({ logs, onClear, onAddLog, onRunCommand }: LogPanelProps)
     };
 
     return (
-        <div className="glass rounded-2xl h-[220px] flex-none overflow-hidden font-mono border border-zinc-800 bg-black/60 backdrop-blur-xl flex flex-col shadow-2xl relative">
+        <div className="force-dark glass rounded-2xl h-[220px] flex-none overflow-hidden font-mono border border-zinc-800 bg-black/60 backdrop-blur-xl flex flex-col shadow-2xl relative">
             {/* Top Bar */}
             <div className="px-4 py-2.5 border-b border-zinc-800/80 bg-zinc-900/40 flex justify-between items-center shrink-0">
                 <div className="flex items-center gap-3">
@@ -75,7 +75,7 @@ const LogPanel = memo(({ logs, onClear, onAddLog, onRunCommand }: LogPanelProps)
                                 console.error("Export failed:", e);
                             }
                         }}
-                        className="flex items-center gap-1.5 text-[9px] font-black uppercase text-zinc-500 hover:text-primary transition-all px-2 py-1 rounded-md hover:bg-white/5 active:scale-95"
+                        className="flex items-center gap-1.5 text-[9px] font-black uppercase text-primary hover:text-primary/70 transition-all px-2 py-1 rounded-md hover:bg-white/5 active:scale-95"
                         title={t('logPanel.reportTitle')}
                     >
                         <Download size={10} />
@@ -83,7 +83,7 @@ const LogPanel = memo(({ logs, onClear, onAddLog, onRunCommand }: LogPanelProps)
                     </button>
                     <button
                         onClick={onClear}
-                        className="flex items-center gap-1.5 text-[9px] font-black uppercase text-zinc-500 hover:text-red-400 transition-all px-2 py-1 rounded-md hover:bg-white/5 active:scale-95"
+                        className="flex items-center gap-1.5 text-[9px] font-black uppercase text-primary hover:text-red-400 transition-all px-2 py-1 rounded-md hover:bg-white/5 active:scale-95"
                     >
                         <Trash2 size={10} />
                         {t('logPanel.clear')}
@@ -101,7 +101,7 @@ const LogPanel = memo(({ logs, onClear, onAddLog, onRunCommand }: LogPanelProps)
                     <div className="space-y-1">
                         {logs.map((log, i) => (
                             <div key={i} className="group flex gap-3 text-[11px] leading-relaxed py-0.5 border-l border-zinc-900 hover:border-primary/30 transition-colors pl-3">
-                                <span className="text-zinc-600 font-bold shrink-0 tabular-nums opacity-40 group-hover:opacity-100 transition-opacity">
+                                <span className="text-zinc-500 font-bold shrink-0 tabular-nums opacity-60 group-hover:opacity-100 transition-opacity">
                                     {new Date().toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                                 </span>
                                 <span className="text-zinc-300 break-all selection:bg-primary/30 selection:text-on-primary">{log}</span>
@@ -120,7 +120,7 @@ const LogPanel = memo(({ logs, onClear, onAddLog, onRunCommand }: LogPanelProps)
                     onChange={(e) => setCommand(e.target.value)}
                     onKeyDown={handleKeyDown}
                     placeholder={t('logPanel.terminalPlaceholder')}
-                    className="flex-1 bg-transparent border-none outline-none text-[11px] text-zinc-300 placeholder:text-zinc-700 font-mono transition-colors focus:placeholder:text-zinc-800"
+                    className="flex-1 bg-transparent border-none outline-none text-[11px] text-zinc-300 placeholder:text-zinc-500 font-mono transition-colors focus:placeholder:text-zinc-600"
                 />
             </div>
 

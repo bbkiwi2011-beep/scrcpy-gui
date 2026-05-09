@@ -27,6 +27,11 @@ export const en = {
             emerald: 'Emerald',
             bloodmoon: 'Blood Moon'
         },
+        colorModes: {
+            light: 'Light',
+            dark: 'Dark',
+            system: 'System'
+        },
         languageLabel: 'Language',
         tagline: 'Mirror & Control Android // Devices Easily',
         scrcpyEngine: 'Scrcpy Engine',

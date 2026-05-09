@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
-import { Download, FolderOpen, RefreshCcw, Palette, HelpCircle, X, ExternalLink, Languages, ChevronDown } from 'lucide-react';
+import { Download, FolderOpen, RefreshCcw, Palette, HelpCircle, X, ExternalLink, Languages, ChevronDown, Sun, Moon, Monitor } from 'lucide-react';
 import { SUPPORTED_LOCALES, useI18n, type Locale } from '../i18n';
 
 interface HeaderProps {
     onThemeChange: (theme: string) => void;
     currentTheme: string;
+    colorMode: 'light' | 'dark' | 'system';
+    onColorModeChange: (mode: 'light' | 'dark' | 'system') => void;
     binaryStatus: { found: boolean, message: string };
     onDownload: () => void;
     onSetPath: () => void;
@@ -14,7 +16,7 @@ interface HeaderProps {
     version: string;
 }
 
-export default function Header({ onThemeChange, currentTheme, binaryStatus, onDownload, onSetPath, onResetPath, isDownloading, downloadProgress, version }: HeaderProps) {
+export default function Header({ onThemeChange, currentTheme, colorMode, onColorModeChange, binaryStatus, onDownload, onSetPath, onResetPath, isDownloading, downloadProgress, version }: HeaderProps) {
     const { t, locale, setLocale, translations } = useI18n();
     const [showHelp, setShowHelp] = useState(false);
     const [showLangMenu, setShowLangMenu] = useState(false);
@@ -95,11 +97,38 @@ export default function Header({ onThemeChange, currentTheme, binaryStatus, onDo
                             <button
                                 key={th.id}
                                 onClick={() => onThemeChange(th.id)}
-                                className={`w-4 h-4 rounded-full transition-all hover:scale-125 active:scale-95 relative group/swatch ${currentTheme === th.id ? 'ring-2 ring-white ring-offset-2 ring-offset-black scale-110' : 'opacity-40 hover:opacity-100'}`}
-                                style={{ backgroundColor: th.color }}
+                                className={`w-4 h-4 rounded-full transition-all hover:scale-125 active:scale-95 relative group/swatch ${currentTheme === th.id ? 'ring-2 ring-white ring-offset-2 ring-offset-black scale-110' : 'opacity-50 hover:opacity-100'}`}
+                                style={{ backgroundColor: th.color, boxShadow: 'inset 0 0 0 1.5px var(--swatch-border)' }}
                             >
                                 <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-zinc-900 border border-zinc-800 rounded text-[9px] font-bold uppercase tracking-widest text-white opacity-0 group-hover/swatch:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
                                     {th.label}
+                                </div>
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Color Mode Toggle */}
+                <div className="flex items-center gap-1 group/mode">
+                    <div className="flex items-center gap-0.5 p-0.5 rounded-lg border border-zinc-800 bg-zinc-900/60">
+                        {([
+                            { id: 'light' as const, Icon: Sun,     label: t('header.colorModes.light') },
+                            { id: 'dark'  as const, Icon: Moon,    label: t('header.colorModes.dark') },
+                            { id: 'system' as const, Icon: Monitor, label: t('header.colorModes.system') },
+                        ] as const).map(({ id, Icon, label }) => (
+                            <button
+                                key={id}
+                                onClick={() => onColorModeChange(id)}
+                                title={label}
+                                className={`relative p-1.5 rounded-md transition-all group/btn ${
+                                    colorMode === id
+                                        ? 'bg-primary text-on-primary shadow-sm'
+                                        : 'text-zinc-400 hover:text-primary hover:bg-zinc-800/60'
+                                }`}
+                            >
+                                <Icon size={11} />
+                                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-zinc-900 border border-zinc-800 rounded text-[9px] font-bold uppercase tracking-widest text-white opacity-0 group-hover/btn:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+                                    {label}
                                 </div>
                             </button>
                         ))}

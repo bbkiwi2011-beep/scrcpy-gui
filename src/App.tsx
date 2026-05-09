@@ -47,6 +47,8 @@ function App() {
     setConfig,
     theme,
     setTheme,
+    colorMode,
+    setColorMode,
     pushFile,
     installApk,
     historyDevices,
@@ -217,7 +219,7 @@ function App() {
 
   return (
     <ErrorBoundary>
-      <div className="min-h-screen text-zinc-200 font-sans selection:bg-primary selection:text-white overflow-hidden flex flex-col transition-opacity duration-1000 ease-in-out" style={{ backgroundColor: 'var(--bg-base)', opacity: 0, animation: 'fadeIn 0.8s ease-out forwards' }}>
+      <div className="min-h-screen font-sans selection:bg-primary selection:text-on-primary overflow-hidden flex flex-col transition-opacity duration-1000 ease-in-out" style={{ backgroundColor: 'var(--bg-base)', color: 'var(--text-base)', opacity: 0, animation: 'fadeIn 0.8s ease-out forwards' }}>
         <style>{`
           @keyframes fadeIn {
             from { opacity: 0; transform: translateY(5px); }
@@ -231,6 +233,8 @@ function App() {
           <Header
             onThemeChange={setTheme}
             currentTheme={theme}
+            colorMode={colorMode}
+            onColorModeChange={setColorMode}
             binaryStatus={scrcpyStatus}
             onDownload={downloadScrcpy}
             onSetPath={handleSetPath}

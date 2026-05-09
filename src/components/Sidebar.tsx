@@ -51,12 +51,12 @@ export default function Sidebar({
     return (
         <aside className="lg:col-span-3 space-y-4">
             <div className="glass p-4 rounded-xl space-y-4 border border-zinc-800 bg-zinc-900/40 backdrop-blur-md">
-                <div className="flex justify-between items-center border-b border-zinc-800/50 pb-2 mb-1">
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5 border-b border-zinc-800/50 pb-2 mb-1">
                     <h2 className="text-[11px] font-black uppercase tracking-widest flex items-center gap-2 text-zinc-400">
                         <Smartphone size={14} className="text-primary" />
                         {t('sidebar.deviceHub')}
                     </h2>
-                    <div className="flex gap-2 items-center">
+                    <div className="flex gap-2 items-center ml-auto">
                         <button
                             onClick={onKillAdb}
                             className="flex items-center gap-1.5 px-2 py-1 rounded-md text-[9px] font-black uppercase tracking-tighter text-zinc-600 hover:text-red-400 hover:bg-red-500/5 transition-all group/zap"

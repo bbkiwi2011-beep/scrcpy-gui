@@ -68,6 +68,13 @@ export function useScrcpy() {
     const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
     // Removed mdnsDevices state
     const [theme, setTheme] = useState("ultraviolet");
+    const [colorMode, setColorModeState] = useState<'light' | 'dark' | 'system'>(() => {
+        try {
+            return (localStorage.getItem('scrcpy_color_mode') as 'light' | 'dark' | 'system') || 'system';
+        } catch {
+            return 'system';
+        }
+    });
     const [config, setConfig] = useState<ScrcpyConfig>({
         device: "",
         sessionMode: "mirror",
@@ -153,6 +160,26 @@ export function useScrcpy() {
         localStorage.setItem('scrcpy_theme', theme);
         document.documentElement.setAttribute('data-theme', theme);
     }, [theme, isInitialized]);
+
+    useEffect(() => {
+        const applyMode = (dark: boolean) => {
+            document.documentElement.setAttribute('data-mode', dark ? 'dark' : 'light');
+        };
+        if (colorMode === 'system') {
+            const mq = window.matchMedia('(prefers-color-scheme: dark)');
+            applyMode(mq.matches);
+            const handler = (e: MediaQueryListEvent) => applyMode(e.matches);
+            mq.addEventListener('change', handler);
+            return () => mq.removeEventListener('change', handler);
+        } else {
+            applyMode(colorMode === 'dark');
+        }
+    }, [colorMode]);
+
+    const setColorMode = (mode: 'light' | 'dark' | 'system') => {
+        setColorModeState(mode);
+        localStorage.setItem('scrcpy_color_mode', mode);
+    };
 
     // Clear detected cameras when device changes
     useEffect(() => {
@@ -543,6 +570,8 @@ export function useScrcpy() {
         setConfig,
         theme,
         setTheme,
+        colorMode,
+        setColorMode,
         pushFile,
         installApk,
         historyDevices,

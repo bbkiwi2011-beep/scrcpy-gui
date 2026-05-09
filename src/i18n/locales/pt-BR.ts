@@ -26,6 +26,11 @@ export const ptBR: Translations = {
             emerald: 'Esmeralda',
             bloodmoon: 'Lua de Sangue'
         },
+        colorModes: {
+            light: 'Claro',
+            dark: 'Escuro',
+            system: 'Sistema'
+        },
         languageLabel: 'Idioma',
         tagline: 'Espelhar & Controlar Android // Dispositivos com Facilidade',
         scrcpyEngine: 'Motor Scrcpy',

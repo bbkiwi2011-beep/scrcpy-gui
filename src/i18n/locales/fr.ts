@@ -26,6 +26,11 @@ export const fr: Translations = {
             emerald: 'Émeraude',
             bloodmoon: 'Lune de Sang'
         },
+        colorModes: {
+            light: 'Clair',
+            dark: 'Sombre',
+            system: 'Système'
+        },
         languageLabel: 'Langue',
         tagline: 'Miroir & Contrôle Android // Appareils Facilement',
         scrcpyEngine: 'Moteur Scrcpy',
