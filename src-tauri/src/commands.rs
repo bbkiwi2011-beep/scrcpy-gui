@@ -674,6 +674,9 @@ pub struct ScrcpyConfig {
     camera_zoom: Option<f32>,
     background_color: Option<String>,
     keep_active: Option<bool>,
+    /// Force SDL renderer VSync on/off (anti-tearing). scrcpy 4.0 (SDL3)
+    /// disables renderer VSync by default; this re-asserts it via the SDL hint.
+    vsync: Option<bool>,
 }
 
 fn resolve_audio_codec_flag<'a>(config: &'a ScrcpyConfig, audio_codec_override: Option<&'a str>) -> Option<&'a str> {
@@ -870,6 +873,7 @@ async fn spawn_scrcpy_streams(
     adb_exe_path: &str,
     server_path: Option<&str>,
     args: &[String],
+    vsync: bool,
 ) -> Result<(tokio::process::Child, Arc<AtomicBool>), String> {
     let command_str = format!("> scrcpy {}", args.join(" "));
     let _ = window.emit("scrcpy-log", command_str);
@@ -882,6 +886,12 @@ async fn spawn_scrcpy_streams(
             command.env("SCRCPY_SERVER_PATH", sp);
         }
     }
+    // scrcpy 4.0 migrated from SDL2 to SDL3, which leaves the renderer's VSync
+    // disabled by default and reintroduced screen tearing for users who had
+    // none on scrcpy 3.x (SDL2). Re-assert VSync through SDL's hint env var so
+    // the renderer syncs to the display refresh; "0" lets the user opt out
+    // (slightly lower input latency) via the in-app toggle.
+    command.env("SDL_RENDER_VSYNC", if vsync { "1" } else { "0" });
     command.stdout(Stdio::piped());
     command.stderr(Stdio::piped());
 
@@ -1019,6 +1029,7 @@ pub async fn run_scrcpy(window: Window, state: State<'_, ScrcpyState>, config: S
         &adb_exe_path,
         server_path.as_deref(),
         &initial_args,
+        config.vsync.unwrap_or(true),
     ).await?;
 
     state.processes.lock().unwrap().insert(config.device.clone(), child);
@@ -1099,6 +1110,7 @@ pub async fn run_scrcpy(window: Window, state: State<'_, ScrcpyState>, config: S
                             &adb_exe_path_mon,
                             server_path_mon.as_deref(),
                             &new_args,
+                            config_mon.vsync.unwrap_or(true),
                         ).await {
                             Ok((new_child, new_flag)) => {
                                 let state_mon = app_handle_mon.state::<ScrcpyState>();
@@ -1171,6 +1183,7 @@ mod tests {
             camera_zoom: None,
             background_color: None,
             keep_active: None,
+            vsync: None,
         }
     }
 

@@ -50,6 +50,7 @@ export interface ScrcpyConfig {
     cameraZoom?: number;
     backgroundColor?: string;
     keepActive?: boolean;
+    vsync?: boolean;
 }
 
 export function useScrcpy() {
@@ -105,7 +106,8 @@ export function useScrcpy() {
         cameraTorch: false,
         cameraZoom: 1.0,
         backgroundColor: '',
-        keepActive: false
+        keepActive: false,
+        vsync: true
     });
     const prevDevicesRef = useRef<string[]>([]);
 

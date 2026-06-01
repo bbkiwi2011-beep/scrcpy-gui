@@ -135,6 +135,7 @@ export default function ControlPanel({
     // BitrateControl removed from here
 
     const PerformanceGrid = ({ showResolution = true }: { showResolution?: boolean }) => (
+        <>
         <div className={`grid ${showResolution ? 'grid-cols-3' : 'grid-cols-2'} gap-2`}>
             {showResolution && (
                 <CustomSelect
@@ -183,6 +184,21 @@ export default function ControlPanel({
                 options={rendererOptions}
             />
         </div>
+        <Tooltip text={t('controlPanel.vsyncTooltip')}>
+            <div
+                className="flex items-center justify-between gap-2 cursor-pointer group px-2 py-1.5 rounded-lg border border-zinc-800/60 bg-zinc-950/20 hover:border-primary/40 transition-colors"
+                onClick={() => handleChange('vsync', config.vsync === false)}
+            >
+                <div className="flex items-center gap-2">
+                    <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center transition-colors ${config.vsync !== false ? 'bg-primary border-primary' : 'border-zinc-700 group-hover:border-primary'}`}>
+                        {config.vsync !== false && <div className="w-1.5 h-1.5 bg-black rounded-[1px]" />}
+                    </div>
+                    <span className="text-[10px] font-bold uppercase text-zinc-300 tracking-wide group-hover:text-primary transition-colors">{t('controlPanel.vsync')}</span>
+                </div>
+                <span className="text-[8px] font-black uppercase tracking-tighter text-zinc-600 group-hover:text-primary/70 transition-colors">{t('controlPanel.vsyncHint')}</span>
+            </div>
+        </Tooltip>
+        </>
     );
 
     return (
