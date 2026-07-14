@@ -148,8 +148,9 @@ export function I18nProvider({ children, initialLocale }: I18nProviderProps) {
             // ignore storage failures
         }
         if (typeof document !== 'undefined') {
-            document.documentElement.setAttribute('lang', locale);
-        }
+    document.documentElement.setAttribute('lang', locale);
+    document.documentElement.setAttribute('dir', locale === 'ar' ? 'rtl' : 'ltr');
+}
     }, [locale]);
 
     const translations = useMemo<Translations>(() => {
