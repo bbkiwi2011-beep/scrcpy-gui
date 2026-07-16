@@ -153,6 +153,7 @@ document.documentElement.setAttribute(
     'dir',
     locale === 'ar' ? 'rtl' : 'ltr'
 );
+}
     }, [locale]);
 
     const translations = useMemo<Translations>(() => {
