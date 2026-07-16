@@ -1,7 +1,9 @@
 // Arabic translations
 // Mirrors the English locale keys.
 
-export const ar = {
+import type { Translations } from './en';
+
+export const ar: Translations = {
    languages: {
     en: 'English',
     fr: 'Français',
@@ -11,7 +13,7 @@ export const ar = {
     ru: 'Русский',
     id: 'Bahasa Indonesia',
     ar: 'العربية'
-},
+   },
     common: {
         ok: 'موافق',
         cancel: 'إلغاء',
