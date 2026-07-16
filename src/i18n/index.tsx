@@ -141,20 +141,21 @@ interface I18nProviderProps {
 export function I18nProvider({ children, initialLocale }: I18nProviderProps) {
     const [locale, setLocaleState] = useState<Locale>(() => initialLocale ?? detectInitialLocale());
 
-    useEffect(() => {
-        try {
-            localStorage.setItem(STORAGE_KEY, locale);
-        } catch {
-            // ignore storage failures
-        }
-        if (typeof document !== 'undefined') {
-  document.documentElement.setAttribute('lang', locale);
-document.documentElement.setAttribute(
-    'dir',
-    locale === 'ar' ? 'rtl' : 'ltr'
-);
-}
-    }, [locale]);
+   useEffect(() => {
+    try {
+        localStorage.setItem(STORAGE_KEY, locale);
+    } catch {
+        // ignore storage failures
+    }
+
+    if (typeof document !== 'undefined') {
+        document.documentElement.setAttribute('lang', locale);
+        document.documentElement.setAttribute(
+            'dir',
+            locale === 'ar' ? 'rtl' : 'ltr'
+        );
+    }
+}, [locale]);
 
     const translations = useMemo<Translations>(() => {
         const safeLocale = SUPPORTED_LOCALES.includes(locale) ? locale : 'en';
