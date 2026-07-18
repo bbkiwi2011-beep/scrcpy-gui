@@ -70,6 +70,7 @@ export const ar: Translations = {
         syncing: 'جارٍ المزامنة...',
         refresh: 'تحديث',
         noDevicesDetected: 'لم يتم اكتشاف أي جهاز',
+        discoveredDevices: 'الأجهزة المكتشفة',
         live: 'متصل',
         ready: 'جاهز',
         wifi: 'Wi-Fi',
